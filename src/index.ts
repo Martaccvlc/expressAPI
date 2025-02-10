@@ -23,3 +23,5 @@ app.listen(port, () => {
     console.log(`The server is running at http://localhost:${port}`);
     Logger.info("Express server is running.");
 });
+
+export default app;
