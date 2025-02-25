@@ -2,6 +2,10 @@ import express, { Request, Response } from "express";
 
 import Logger from "./utils/logger";
 import morganMiddleware from './config/morganMiddleware'
+import connectToMongoDB  from "./config/database_conn";
+import route from "./routes/route";
+
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 // Create a new express application instance
 const app = express();
@@ -18,8 +22,18 @@ app.get("/", (req: Request, res: Response) => {
     Logger.info("Success");
 });
 
-// Start the Express server
-app.listen(port, () => {
-    console.log(`The server is running at http://localhost:${port}`);
-    Logger.info("Express server is running.");
-});
+// Register API routes from the projectRoutes array
+app.use('/api', route);
+
+connectToMongoDB(MONGODB_URI)
+.then(() => {
+  app.listen(port, () => {
+    Logger.info(`[server]: Server is running at http://localhost:${port}`);
+  });
+})
+.catch((error) => {
+  Logger.error('Failed to connect to MongoDB database:', error);
+  process.exit(1);
+})
+
+export default app;
